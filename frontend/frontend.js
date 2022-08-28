@@ -6,6 +6,7 @@ class Frontend{
     constructor(root){
         this.app = express()
         this.app.set('views', `${root}/frontend/views`)
+        this.app.use(express.static(`${root}/frontend/static`))
         this.app.set('view engine', 'pug')
         this.app.use(bodyParser.urlencoded({ extended: false }))
 
