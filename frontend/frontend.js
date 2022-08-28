@@ -1,12 +1,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const path = require('path');
-const { settings } = require('config.json');
+const { settings } = require('../config.json');
 
 class Frontend{
-    constructor(){
+    constructor(root){
         this.app = express()
-        this.root = path.resolve(__dirname)
         this.app.set('views', `${root}/frontend/views`)
         this.app.set('view engine', 'pug')
         this.app.use(bodyParser.urlencoded({ extended: false }))
