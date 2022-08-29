@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 class Server{
-    constructor(properties,version,uid=0,pid=0){
+    constructor(version,properties={},uid=0,pid=0){
         this.properties = properties;
         this.uid = uid;
         this.pid = pid;
@@ -46,7 +46,7 @@ class Server{
                 }catch(e){
                     reject(`Error updating master list, ${e.message}`);
                 }
-
+                results('all ok');
             });
             return await promise;
         }
