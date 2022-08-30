@@ -1,4 +1,33 @@
 extends template
 block main
-  h1 Welcome to Minecraft Seer
-  include server
+  h1(class="title") Welcome to Minecraft Seer
+  div(class="box")
+    form(action='/create' method='post')
+      div(class="field")
+        label(class="label") Title
+        div(class="control")
+          input(type="text" name="title" class="input")
+      div(class="field")
+        label(class="label") Description
+        div(class="control")
+          input(type="text" name="desc" class="input")
+      button(type="submit" class="button is-link") Create
+block bottom
+    h2(class="title") Server list
+    div(class="tile is-ancestor")
+    each server in servers
+      div(class="tile")
+        div(class="card")
+          header(class="card-header")
+            p(class="card-header-title")= server.title
+          div(class="card-content")
+            div(class="content")= server.desc
+              br
+              br
+              div(class="tags has-addons")
+                span(class="tag") pid
+                span(class="tag is-primary")= server.pid
+          footer(class="card-footer")
+            a(class="card-footer-item") Boot
+            a(class="card-footer-item") Edit
+            a(class="card-footer-item") Delete

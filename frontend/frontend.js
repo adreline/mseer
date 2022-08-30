@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const { settings } = require('../config.json');
-const { listServers } = require("../modules/spawner.js");
+const { listServers, createNewServer } = require("../modules/spawner.js");
 
 class Frontend{
     constructor(){
@@ -19,6 +19,23 @@ class Frontend{
                         console.error(e);
                         res.render('index',{ code: 1, msg: e.message });
                     })
+            })();
+        })
+        this.app.post("/create", (req, res) => {
+            (async ()=>{
+                createNewServer(req.body.version,req.body.title,req.body.desc)
+                .then( m => {
+                    console.log(m);
+                })
+                .catch( e => {
+                    console.error(e);
+                })
+                .finally(()=>{
+                    const backtrack = new URL(req.headers.referer);
+                    console.log(backtrack.pathname);
+                    res.redirect(`${backtrack.pathname}`);
+                });
+
             })();
         })
     }
