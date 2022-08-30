@@ -1,17 +1,13 @@
 const fs = require('fs');
+const { uniqeid } = require('./aide.js');
 
 class Server{
-    constructor(version,properties={},uid=0,pid=0){
-        this.properties = properties;
+    constructor(properties={},uid=uniqeid()){
+        this.props = properties;
         this.uid = uid;
-        this.pid = pid;
-        this.version = version;
         this.serialize = function(){
             return JSON.stringify({
-                properties: this.properties,
-                uid: this.uid,
-                pid: this.pid,
-                version: this.version
+                properties: this.props
             })
         }
         this.commit = async function () {
@@ -28,7 +24,7 @@ class Server{
                 }
                 console.log('saving server metadata');
                 try{
-                    fs.writeFileSync(`../mojang/${this.uid}/server.json`,this.serialize());
+                    fs.writeFileSync(`../mojang/${this.uid}/server.properties`,this.serialize());
                     console.log('ok');
                 }catch(e){
                     reject(`Error writing to a file, ${e.message}`);
@@ -37,10 +33,7 @@ class Server{
                 try{
                     let master = fs.readFileSync('../mojang/master.json',{ encoding: "utf8", flag: "r" });
                     master = JSON.parse(master);
-                    master[this.uid]={
-                        pid: this.pid,
-                        version: this.version
-                    }
+                    master[this.uid]=this.props;
                     fs.writeFileSync('../mojang/master.json',JSON.stringify(master));
                     console.log('ok');
                 }catch(e){
