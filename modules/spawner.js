@@ -1,12 +1,13 @@
 const { Server } = require('./server-class.js');
 const fs = require('fs');
 
-async function createNewServer(version,title='Server',desc='A minecraft server'){
+async function createNewServer(version,title='Server',desc='A minecraft server',port=1111){
     let promise = new Promise((result,reject)=>{
         let s = new Server({
             title: title,
             desc: desc,
             version: version,
+            port: port,
             pid: 'na'
         });
         s.commit().then(m => {

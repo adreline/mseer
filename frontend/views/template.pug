@@ -2,6 +2,14 @@ doctype html
 head
   title Minecraft Seer
   link(rel="stylesheet" type="text/css" href="app.css")
+  style(type="text/css").
+    .tile.is-ancestor{
+      flex-wrap: wrap;
+    } 
+    .tile:not(.tile.is-ancestor){
+      min-width: fit-content;
+      margin-right: .5rem;
+    }
 body
   block top
   section(class="section")

@@ -1,33 +1,55 @@
 extends template
 block main
   h1(class="title") Welcome to Minecraft Seer
-  div(class="box")
-    form(action='/create' method='post')
-      div(class="field")
-        label(class="label") Title
-        div(class="control")
-          input(type="text" name="title" class="input")
-      div(class="field")
-        label(class="label") Description
-        div(class="control")
-          input(type="text" name="desc" class="input")
-      button(type="submit" class="button is-link") Create
+
 block bottom
-    h2(class="title") Server list
-    div(class="tile is-ancestor")
-    each server in servers
-      div(class="tile")
-        div(class="card")
-          header(class="card-header")
-            p(class="card-header-title")= server.title
-          div(class="card-content")
-            div(class="content")= server.desc
-              br
-              br
-              div(class="tags has-addons")
-                span(class="tag") pid
-                span(class="tag is-primary")= server.pid
-          footer(class="card-footer")
-            a(class="card-footer-item") Boot
-            a(class="card-footer-item") Edit
-            a(class="card-footer-item") Delete
+  div(class="columns")
+    div(class="column")
+      div(class="tile is-ancestor")
+        div(class="tile")
+          form(action='/create' method='post')
+            div(class="field")
+              label(class="label") Title
+              div(class="control")
+                input(type="text" name="title" class="input" required)
+            div(class="field")
+              label(class="label") Version
+              div(class="control")
+                div(class="select")
+                  select(name="version")
+                    option 1.19.1
+                    option 1.12.1
+            div(class="field")
+              label(class="label") Port
+              div(class="control")
+                input(type="number" name="port" class="input" placeholder="Can be left empty")
+            button(type="submit" class="button is-link") Quick create
+    div(class="column is-three-quarters")
+      div(class="tile is-ancestor")
+        h2(class="title tile") Server list
+        each server in servers
+          div(class="tile")
+            div(class="card")
+              header(class="card-header")
+                p(class="card-header-title")= server.title
+              div(class="card-content")
+                div(class="content")= server.desc
+                  br
+                  br
+                  div(class="field is-grouped is-grouped-multiline")
+                    div(class="control")
+                      div(class="tags has-addons")
+                        span(class="tag") port
+                        span(class="tag is-info")= server.port
+                    div(class="control")
+                      div(class="tags has-addons")
+                        span(class="tag") version
+                        span(class="tag is-primary")= server.version
+                    div(class="control")
+                      div(class="tags has-addons")
+                        span(class="tag") pid
+                        span(class="tag is-primary")= server.pid
+              footer(class="card-footer")
+                a(class="card-footer-item") Boot
+                a(class="card-footer-item") Edit
+                a(class="card-footer-item") Delete
