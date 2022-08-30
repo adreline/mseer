@@ -32,3 +32,5 @@ async function listServers(){
     return await promise;
 }
 
+exports.createNewServer = createNewServer;
+exports.listServers = listServers;
