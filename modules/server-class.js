@@ -12,10 +12,10 @@ class Server{
         }
         this.commit = async function () {
             let promise = new Promise((results,reject)=>{
-                if(!fs.existsSync(`../mojang/${this.uid}`)){
-                    console.log(`creating new dir at ../mojang/${this.uid}`);
+                if(!fs.existsSync(`${documentRoot}/mojang/${this.uid}`)){
+                    console.log(`creating new dir at ${documentRoot}/mojang/${this.uid}`);
                     try{
-                        fs.mkdirSync(`../mojang/${this.uid}`);
+                        fs.mkdirSync(`${documentRoot}/mojang/${this.uid}`);
                         console.log('ok');
                     }catch(e){
                         reject(`Error creating new directory, ${e.message}`);
@@ -24,17 +24,17 @@ class Server{
                 }
                 console.log('saving server metadata');
                 try{
-                    fs.writeFileSync(`../mojang/${this.uid}/server.properties`,this.serialize());
+                    fs.writeFileSync(`${documentRoot}/mojang/${this.uid}/server.properties`,this.serialize());
                     console.log('ok');
                 }catch(e){
                     reject(`Error writing to a file, ${e.message}`);
                 }
                 console.log('updating master list');
                 try{
-                    let master = fs.readFileSync('../mojang/master.json',{ encoding: "utf8", flag: "r" });
+                    let master = fs.readFileSync(`${documentRoot}/mojang/master.json`,{ encoding: "utf8", flag: "r" });
                     master = JSON.parse(master);
                     master[this.uid]=this.props;
-                    fs.writeFileSync('../mojang/master.json',JSON.stringify(master));
+                    fs.writeFileSync(`${documentRoot}/mojang/master.json`,JSON.stringify(master));
                     console.log('ok');
                 }catch(e){
                     reject(`Error updating master list, ${e.message}`);

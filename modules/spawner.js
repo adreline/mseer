@@ -21,7 +21,7 @@ async function createNewServer(version,title='Server',desc='A minecraft server')
 async function listServers(){
     let promise = new Promise((result,reject)=>{
         try{
-            let master = fs.readFileSync('../mojang/master.json',{ encoding: "utf8", flag: "r" });
+            let master = fs.readFileSync(`${documentRoot}/mojang/master.json`,{ encoding: "utf8", flag: "r" });
             master = JSON.parse(master);
             result(master);
         }catch(e){
