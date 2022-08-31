@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const { settings } = require('../config.json');
-const { listServers, createNewServer } = require("../modules/spawner.js");
+const Spawner = require("../modules/spawner.js");
 
 class Frontend{
     constructor(){
@@ -12,32 +12,41 @@ class Frontend{
         this.app.use(bodyParser.urlencoded({ extended: false }))
 
         this.app.get("/", (req, res) => {
-            (async ()=>{
-                    listServers().then( servers => {
-                        res.render('index',{ code: 0, servers: servers});
-                    }).catch( e => {
-                        console.error(e);
-                        res.render('index',{ code: 1, msg: e.message });
-                    })
-            })();
+            Spawner.listServers()
+            .then( servers => {
+                res.render('index',{ code: 0, servers: servers});
+            })
+            .catch( e => {
+                console.error(e);
+                res.render('index',{ code: 1, msg: e });
+            });
         })
         this.app.post("/create", (req, res) => {
-            (async ()=>{
-                createNewServer(req.body.version,req.body.title,req.body.desc)
-                .then( m => {
-                    console.log(m);
-                })
-                .catch( e => {
-                    console.error(e);
-                })
-                .finally(()=>{
-                    const backtrack = new URL(req.headers.referer);
-                    console.log(backtrack.pathname);
-                    res.redirect(`${backtrack.pathname}`);
-                });
-
-            })();
+            Spawner.createNewServer(req.body.version,req.body.title,req.body.desc,req.body.port)
+            .then( m => {
+                console.log(m);
+            })
+            .catch( e => {
+                console.error(e);
+            })
+            .finally(()=>{
+                const backtrack = new URL(req.headers.referer);
+                res.redirect(`${backtrack.pathname}`);
+            });
         })
+        this.app.get("/delete/:uid",(req,res)=>{
+            Spawner.deleteServer(req.params.uid)
+            .then( m => {
+                console.log(m);
+            })
+            .catch( e => {
+                console.error(e);
+            })
+            .finally(()=>{
+                const backtrack = new URL(req.headers.referer);
+                res.redirect(`${backtrack.pathname}`);
+            });
+        });
     }
     serve(){
         this.app.listen(settings.webInterfacePort, () => {

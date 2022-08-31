@@ -27,7 +27,7 @@ block bottom
     div(class="column is-three-quarters")
       div(class="tile is-ancestor")
         h2(class="title tile") Server list
-        each server in servers
+        each server,uid in servers
           div(class="tile")
             div(class="card")
               header(class="card-header")
@@ -52,4 +52,4 @@ block bottom
               footer(class="card-footer")
                 a(class="card-footer-item") Boot
                 a(class="card-footer-item") Edit
-                a(class="card-footer-item") Delete
+                a(class="card-footer-item" href=`/delete/${uid}`) Delete
