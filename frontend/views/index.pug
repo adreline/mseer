@@ -17,8 +17,8 @@ block bottom
               div(class="control")
                 div(class="select")
                   select(name="version")
-                    option 1.19.1
-                    option 1.12.1
+                    each jar in jars
+                      option= jar.version
             div(class="field")
               label(class="label") Port
               div(class="control")

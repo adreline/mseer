@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const { settings } = require('../config.json');
 const Spawner = require("../modules/spawner.js");
+const ServerJars = require('serverjars-api'); 
 
 class Frontend{
     constructor(){
@@ -14,11 +15,15 @@ class Frontend{
         this.app.get("/", (req, res) => {
             Spawner.listServers()
             .then( servers => {
-                res.render('index',{ code: 0, servers: servers});
+                return Promise.all([ServerJars.fetchAll('vanilla/vanilla'), servers]);       
+            })
+            .then((jars_and_servers)=>{
+                console.log(jars_and_servers[1]);
+                res.render('index',{ code: 0, servers: jars_and_servers[1], jars: jars_and_servers[0]});
             })
             .catch( e => {
                 console.error(e);
-                res.render('index',{ code: 1, msg: e });
+                res.render('index',{ code: 1, msg: e, servers: {} });
             });
         })
         this.app.post("/create", (req, res) => {
