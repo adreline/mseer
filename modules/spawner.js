@@ -1,85 +1,91 @@
 const { Server } = require('./server-class.js');
 const H = require('./aide.js');
 const fs = require('fs');
-const ServerJars = require('serverjars-api'); 
+const ServerJars = require('serverjars-api');
 const forever = require('forever-monitor');
 
-function createNewServer(version,title='Server',desc='A minecraft server',port=1111){
-    let s = new Server({
-        title: title,
-        desc: desc,
-        version: version,
-        port: port,
-        pid: 'na'
-    });
-    console.log(`Pushing EULA for ${s.uid}`);
-    fs.writeFileSync('eula.txt','eula=true');
-    return s.commit();
-}
-function bootServer(uid){
-    return new Promise((result, reject)=>{
-        H.getMaster(uid)
-        .then( server =>{
-            console.log(`Booting ${server.title}`);
-            return Promise.all([H.getJar(server.version),server]);
-        })
-        .then(tail=>{
-            let server = tail[1];
-            if(!fs.existsSync(`/home/ubuntu/mseer/mojang/${uid}/server.jar`)){
-                console.log('Linking the binary');
-                fs.symlinkSync(`${documentRoot}/mojang/bins/${server.version}.jar`,`${documentRoot}/mojang/${uid}/server.jar`);    
-            }
-            console.log('Spining up java')
-            let spool = new (forever.Monitor)([ 'java -jar', `/home/ubuntu/mseer/mojang/${uid}/server.jar` ], {
-                max : 1,
-                silent : true,
-                cwd: `/home/ubuntu/mseer/mojang/${uid}`
-            });
-            spool.on('exit', function () {
-                console.log(`${server.title} has exited (pid: ${spool.uid})`);
-                server = new Server(server,uid);
-                server.props.running = spool.running;
-                server.commit();
-            });
-            spool.on('error', function () {
-                console.error(`${server.title} raised an error (pid: ${spool.uid})`);
-                server = new Server(server,uid);
-                server.props.running = spool.running;
-                server.commit();
+function createNewServer(version, title = 'Server', desc = 'A minecraft server', port = 1111) {
+    return new Promise((result, reject) => {
+        let s = new Server({
+            title: title,
+            desc: desc,
+            version: version,
+            port: port,
+            pid: 'na'
+        });
+        s.commit()
+            .then(m => {
+                console.log(`Pushing EULA for ${s.uid}`);
+                fs.writeFileSync(`/home/ubuntu/mseer/mojang/${s.uid}/eula.txt`, 'eula=true');
+                result(m);
             })
-            console.log(`Obtained pid ${spool.uid}`);
-            console.log('updating master record');
-            server = new Server(server,uid);
-            server.props.pid = spool.uid;
-            server.props.running = spool.running;
-            return Promise.all([server.commit(),spool]);
-        })
-        .then(tail => {
-            console.log('all ok');
-            result(tail[1]);
-        })
-        .catch(e=>{
-            console.error(e);
-            reject();
-        })
+            .catch(e => { reject(e) });
+    })
+}
+function bootServer(uid) {
+    return new Promise((result, reject) => {
+        H.getMaster(uid)
+            .then(server => {
+                console.log(`Booting ${server.title}`);
+                return Promise.all([H.getJar(server.version), server]);
+            })
+            .then(tail => {
+                let server = new Server(tail[1],uid);
+                if (!fs.existsSync(`/home/ubuntu/mseer/mojang/${uid}/server.jar`)) {
+                    console.log('Linking the binary');
+                    fs.symlinkSync(`${documentRoot}/mojang/bins/${server.props.version}.jar`, `${documentRoot}/mojang/${uid}/server.jar`);
+                }
+                console.log('Spining up java')
+                let spool = new (forever.Monitor)(['java -jar', `/home/ubuntu/mseer/mojang/${uid}/server.jar`], {
+                    max: 1,
+                    silent: true,
+                    cwd: `/home/ubuntu/mseer/mojang/${uid}`
+                });
+                spool.on('exit', function () {
+                    console.log(`${server.props.title} has exited (pid: ${spool.uid})`);
+                    server.props.pid = '-';
+                    server.commit();
+                });
+                spool.on('error', function () {
+                    console.error(`${server.props.title} raised an error (pid: ${spool.uid})`);
+                    server.props.pid = '-';
+                    server.commit();
+                })
+                console.log(`Obtained pid ${spool.uid}`);
+                console.log('updating master record');
+                server.props.pid = spool.uid;
+                return Promise.all([server.commit(), spool]);
+            })
+            .then(tail => {
+                console.log('all ok');
+                result(tail[1]);
+            })
+            .catch(e => {
+                console.error(e);
+                reject();
+            })
     });
 }
-function listServers(){
+function listServers() {
     return H.getMaster();
 }
 
-function deleteServer(uid){
-    return new Promise((result,reject)=>{
-            console.log(`Deleting ${uid} from master record`);
-            H.updateMaster(uid)
-            .then(()=>{
+function deleteServer(uid) {
+    return new Promise((result, reject) => {
+        console.log(`Deleting ${uid} from master record`);
+        H.updateMaster(uid)
+            .then(() => {
                 console.log(`Unlinking binaries`);
-                fs.unlinkSync(`${documentRoot}/mojang/${uid}/server.jar`);
+                try{
+                    fs.unlinkSync(`${documentRoot}/mojang/${uid}/server.jar`);
+                }catch(e){
+                    console.error(e.message);
+                }
                 console.log(`Purging the directory ${documentRoot}/mojang/${uid}`);
-                fs.rmSync(`${documentRoot}/mojang/${uid}`,{recursive: true});
+                fs.rmSync(`${documentRoot}/mojang/${uid}`, { recursive: true });
                 result('ok');
             })
-            .catch(e=>{
+            .catch(e => {
                 reject(e);
             })
 
