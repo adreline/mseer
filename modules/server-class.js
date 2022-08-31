@@ -29,8 +29,6 @@ class Server{
                 }catch(e){
                     reject(`Error writing to a file, ${e.message}`);
                 }
-                console.log('linking binary');
-                //TODO
                 console.log('updating master list');
                 H.updateMaster(this.uid,this.props)
                 .then(()=>{

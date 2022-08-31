@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const { settings } = require('../config.json');
 const Spawner = require("../modules/spawner.js");
 const ServerJars = require('serverjars-api'); 
+const forever = require('forever-monitor');
 
 class Frontend{
     constructor(){
@@ -18,7 +19,6 @@ class Frontend{
                 return Promise.all([ServerJars.fetchAll('vanilla/vanilla'), servers]);       
             })
             .then((jars_and_servers)=>{
-                console.log(jars_and_servers[1]);
                 res.render('index',{ code: 0, servers: jars_and_servers[1], jars: jars_and_servers[0]});
             })
             .catch( e => {
@@ -43,6 +43,20 @@ class Frontend{
             Spawner.deleteServer(req.params.uid)
             .then( m => {
                 console.log(m);
+            })
+            .catch( e => {
+                console.error(e);
+            })
+            .finally(()=>{
+                const backtrack = new URL(req.headers.referer);
+                res.redirect(`${backtrack.pathname}`);
+            });
+        });
+        this.app.get("/boot/:uid",(req,res)=>{
+            Spawner.bootServer(req.params.uid)
+            .then( m => {
+                console.log(`Starting ${m.uid}`);
+                m.start();
             })
             .catch( e => {
                 console.error(e);
