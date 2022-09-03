@@ -6,9 +6,7 @@ class Server{
         this.props = properties;
         this.uid = uid;
         this.serialize = function(){
-            return JSON.stringify({
-                properties: this.props
-            })
+            return JSON.stringify(this.props)
         }
         this.commit = function () {
             return new Promise((results,reject)=>{
@@ -24,7 +22,13 @@ class Server{
                 }
                 console.log('saving server metadata');
                 try{
-                    fs.writeFileSync(`${documentRoot}/mojang/${this.uid}/server.properties`,this.serialize());
+                    fs.writeFileSync(`${documentRoot}/mojang/${this.uid}/server.properties`,H.translate(
+                        JSON.stringify({
+                            'server-port': this.props.port,
+                            motd: this.props.desc,
+                            'online-mode': false
+                        })
+                    ));
                     console.log('ok');
                 }catch(e){
                     reject(`Error writing to a file, ${e.message}`);
