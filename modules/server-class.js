@@ -26,7 +26,6 @@ class Server{
                         JSON.stringify({
                             'server-port': this.props.port,
                             motd: this.props.desc,
-                            'online-mode': false
                         })
                     ));
                     console.log('ok');
