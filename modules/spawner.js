@@ -3,13 +3,13 @@ const H = require('./aide.js');
 const fs = require('fs');
 const forever = require('forever-monitor');
 
-function createNewServer(version, title = 'Server', desc = 'A minecraft server', port = 1111) {
+function createNewServer(version, title = 'Server', desc = 'A minecraft server', port) {
     return new Promise((result, reject) => {
         let s = new Server({
             title: title,
             desc: desc,
             version: version,
-            port: port,
+            port: (port=='')?'3423':port,
             pid: '-'
         });
         s.commit()
