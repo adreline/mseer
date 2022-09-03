@@ -32,6 +32,8 @@ block bottom
             div(class="card")
               header(class="card-header")
                 p(class="card-header-title")= server.title
+                button(class="card-header-icon")
+                  span(class=`tag ${(server.pid=='-')?'is-danger':'is-success'}`)= (server.pid=='-')?'offline':'online'
               div(class="card-content")
                 div(class="content")= server.desc
                   br
@@ -50,6 +52,6 @@ block bottom
                         span(class="tag") pid
                         span(class="tag is-primary")= server.pid
               footer(class="card-footer")
-                a(class="card-footer-item" href=`/boot/${uid}`) Boot
+                a(class="card-footer-item" href=`/${(server.pid=='-')?'boot':'kill'}/${uid}`)= (server.pid=='-')?'Boot':'Shutdown'
                 a(class="card-footer-item") Edit
                 a(class="card-footer-item" href=`/delete/${uid}`) Delete
