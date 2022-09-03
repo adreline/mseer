@@ -66,6 +66,19 @@ class Frontend{
                 res.redirect(`${backtrack.pathname}`);
             });
         });
+        this.app.get("/kill/:uid",(req,res)=>{
+            Spawner.killServer(req.params.uid)
+            .then( m => {
+                console.log(m);
+            })
+            .catch( e => {
+                console.error(e);
+            })
+            .finally(()=>{
+                const backtrack = new URL(req.headers.referer);
+                res.redirect(`${backtrack.pathname}`);
+            });
+        });
     }
     serve(){
         this.app.listen(settings.webInterfacePort, () => {

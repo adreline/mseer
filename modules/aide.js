@@ -41,12 +41,16 @@ function updateMaster(key, val=false) {
         getMaster()
         .then(master => {
             if(!val){ //calling the funct without val will prompt it to delete the record instead
+                console.log(`removing key ${key}`);
                 delete master[key];
+                result();
             }else{
+                console.log(`updating ${key} with ${val.pid}`);
                 master[key] = val;
+                result();
             }
+            console.log('writing to a file');
             fs.writeFileSync(`${documentRoot}/mojang/master.json`, JSON.stringify(master));
-            result('ok');
         })
         .catch(e=>{
             reject(e.message);

@@ -1,7 +1,6 @@
 const { Server } = require('./server-class.js');
 const H = require('./aide.js');
 const fs = require('fs');
-const ServerJars = require('serverjars-api');
 const forever = require('forever-monitor');
 
 function createNewServer(version, title = 'Server', desc = 'A minecraft server', port = 1111) {
@@ -11,7 +10,7 @@ function createNewServer(version, title = 'Server', desc = 'A minecraft server',
             desc: desc,
             version: version,
             port: port,
-            pid: 'na'
+            pid: '-'
         });
         s.commit()
             .then(m => {
@@ -21,6 +20,16 @@ function createNewServer(version, title = 'Server', desc = 'A minecraft server',
             })
             .catch(e => { reject(e) });
     })
+}
+function killServer(uid){
+    return new Promise((result, reject)=>{
+        console.log(`Attempting to kill ${uid}`);
+        if(!Spools.hasOwnProperty(uid)){
+            reject(`Process ${uid} does not exit`);
+        }else{
+            Spools[uid].stop();
+        }   result(`Process ${uid} killed`);
+    });
 }
 function bootServer(uid) {
     return new Promise((result, reject) => {
@@ -43,14 +52,14 @@ function bootServer(uid) {
                 });
                 spool.on('exit', function () {
                     console.log(`${server.props.title} has exited (pid: ${spool.uid})`);
+                    delete Spools[uid];
                     server.props.pid = '-';
                     server.commit();
                 });
                 spool.on('error', function () {
                     console.error(`${server.props.title} raised an error (pid: ${spool.uid})`);
-                    server.props.pid = '-';
-                    server.commit();
-                })
+                });
+                Spools[uid] = spool;
                 console.log(`Obtained pid ${spool.uid}`);
                 console.log('updating master record');
                 server.props.pid = spool.uid;
@@ -96,5 +105,6 @@ module.exports = {
     createNewServer: createNewServer,
     listServers: listServers,
     deleteServer: deleteServer,
-    bootServer: bootServer
+    bootServer: bootServer,
+    killServer: killServer
 };
